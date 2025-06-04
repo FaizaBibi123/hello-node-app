@@ -1,0 +1,30 @@
+name: Dockerized Node App CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t hello-node-app .
+
+    - name: Run Docker container
+      run: docker run -d -p 3000:3000 --name test-container hello-node-app
+
+    - name: Wait for container to start
+      run: sleep 5
+
+    - name: Test if app is running
+      run: curl --fail http://localhost:3000
+
+    - name: Stop and remove container
+      run: docker rm -f test-container
